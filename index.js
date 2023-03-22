@@ -18,15 +18,26 @@ app.get("/", function (req, res) {
   res.sendFile(__dirname + "/views/index.html");
 });
 
-// date API endpoint...
+// API endpoint
+app.get("/api", (req, res) => {
+  const date = new Date();
+  res.json({ unix: date.getTime(), utc: date.toUTCString() });
+});
 
+// date API endpoint...
 app.get("/api/:date", (req, res) => {
-  if (req.params.date.includes("-")) {
-    const date = new Date(req.params.date);
-    res.json({ unix: date.getTime(), utc: date.toUTCString() });
+  let date = new Date(req.params.date);
+
+  if (isNaN(date.getTime())) {
+    date = new Date(Number(req.params.date));
+
+    if (isNaN(date.getTime())) {
+      res.json({ error: "Invalid Date" });
+    } else {
+      res.json({ unix: Number(req.params.date), utc: date.toUTCString() });
+    }
   } else {
-    const date = new Date(Number(req.params.date));
-    res.json({ unix: Number(req.params.date), utc: date.toUTCString() });
+    res.json({ unix: date.getTime(), utc: date.toUTCString() });
   }
 });
 
